@@ -1,0 +1,102 @@
+import random
+
+class PlayerStats:
+    def __init__(self):  # Corrected method name to __init__
+        self.games_played = 0
+        self.wins = 0
+
+    def update_stats(self, won):
+        self.games_played += 1
+        if won:
+            self.wins += 1
+
+    def win_percentage(self):
+        if self.games_played == 0:
+            return 0
+        return (self.wins / self.games_played) * 100
+
+    def display_stats(self):
+        print(f"\nFinal Stats:")
+        print(f"Games Played: {self.games_played}")
+        print(f"Wins: {self.wins}")
+        print(f"Win Percentage: {self.win_percentage():.2f}%")
+
+class Game:
+    def __init__(self):  # Corrected method name to __init__
+        self.target_number = random.randint(1, 100)
+        self.attempts_left = 5
+
+    def guess(self, number):
+        self.attempts_left -= 1
+        if number == self.target_number:
+            return 'correct'
+        elif number < self.target_number:
+            return 'too low'
+        else:
+            return 'too high'
+
+    def is_game_over(self):
+        return self.attempts_left <= 0
+
+    def reveal_number(self):
+        return self.target_number
+
+class NumericalGame:
+    def __init__(self):  # Corrected method name to __init__
+        self.stats = PlayerStats()
+
+    def play_game(self):
+        while True:
+            game = Game()
+            print("\nNew Game Started! Guess the number between 1 and 100.")
+            
+            while not game.is_game_over():
+                try:
+                    guess = input(f"Enter your guess (Attempts left: {game.attempts_left}) or type 'restart' to restart: ").strip()
+                    
+                    # Check if the player wants to restart
+                    if guess.lower() == 'restart':
+                        print("Game restarting...")
+                        break  # Exit the inner loop and start a new game.
+                    
+                    # Validate the guess input
+                    guess = int(guess)
+                    if guess < 1 or guess > 100:
+                        raise ValueError("Guess must be between 1 and 100.")
+                    
+                    # Check if the guess is correct
+                    result = game.guess(guess)
+                    if result == 'correct':
+                        print("Congratulations! You guessed the number correctly.")
+                        self.stats.update_stats(True)
+                        break
+                    else:
+                        print(f"Your guess is {result}.")
+                
+                except ValueError as e:
+                    print(e)
+
+            # If the game is over and the player didn't win
+            if game.is_game_over() and 'result' in locals() and result != 'correct':  # Ensure 'result' is defined
+                print(f"Sorry, you've used all attempts. The number was {game.reveal_number()}.")
+                self.stats.update_stats(False)
+            
+            # Ask if the player wants to play again
+            play_again = input("Do you want to play again? (yes/no): ").strip().lower()
+            if play_again != 'yes':
+                self.stats.display_stats()
+                
+                # Menu to replay or quit after viewing stats
+                while True:
+                    next_action = input("\nDo you want to play a new game or quit? (new/quit): ").strip().lower()
+                    if next_action == 'new':
+                        break  # Start a new game by breaking out of this menu loop
+                    elif next_action == 'quit':
+                        print("Thanks for playing! Goodbye.")
+                        return  # Exit the game
+                    else:
+                        print("Invalid input. Please type 'new' to play again or 'quit' to exit.")
+
+if __name__ == "__main__":  # Corrected the entry point check
+    game = NumericalGame()
+    game.play_game()
